@@ -162,25 +162,25 @@ describe('Recommendations API', function() {
         })
         .end(done);
     });
-  //
-  //   it('handles invalid id', function(done) {
-  //     request
-  //       .get('/films/notanid/recommendations')
-  //       .expect(422)
-  //       .expect(function(res) {
-  //         ok('message' in res.body, '"message" key missing');
-  //       })
-  //       .end(done);
-  //   });
-  //
-  //   it('handles invalid query params', function(done) {
-  //     request
-  //       .get('/films/19/recommendations?offset=notanoffset&limit=notalimit')
-  //       .expect(422)
-  //       .expect(function(res) {
-  //         ok('message' in res.body, '"message" key missing');
-  //       })
-  //       .end(done);
-  //   });
+
+    it('handles invalid id', function(done) {
+      request
+        .get('/films/notanid/recommendations')
+        .expect(422)
+        .expect(function(res) {
+          ok('message' in res.body, '"message" key missing');
+        })
+        .end(done);
+    });
+  
+    it('handles invalid query params', function(done) {
+      request
+        .get('/films/19/recommendations?offset=notanoffset&limit=notalimit')
+        .expect(422)
+        .expect(function(res) {
+          ok('message' in res.body, '"message" key missing');
+        })
+        .end(done);
+    });
   });
 });

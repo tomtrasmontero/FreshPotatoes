@@ -69,7 +69,6 @@ app.get('*', (req, res) => {
 
 // ROUTE HANDLER
 function getFilmRecommendations(req, res, next) {
-  // check req object => error handler
   FILMS.findAll({where: {id: req.params.id, status: 'Released'}, raw: true})
     .then((filmBeingLookedUp) => {
       const FILMS_RESULT = FILMS.findAll({
@@ -82,7 +81,6 @@ function getFilmRecommendations(req, res, next) {
       return Promise.all([FILMS_RESULT, filmBeingLookedUp[0], MOVIE_GENRE]);
     })
     .then((filmResults) => {
-      // remember to attach genre
       const [FILMS, QUERIED_FILM, MOVIE_GENRE] = filmResults;
       const FILMS_WITHIN_15YRS = FILMS.filter((film) => {
         return checkDate(QUERIED_FILM.release_date, film.release_date);
@@ -105,8 +103,7 @@ function getFilmRecommendations(req, res, next) {
       res.send(transformResponse(RECOMMENDED_FILMS, req.query));
     })
     .catch(err => {
-      console.log(err);
-      next();
+      res.status(422).send({message: '"message" key missing'});
     });
 }
 
