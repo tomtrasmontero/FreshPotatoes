@@ -4,6 +4,7 @@
   "description": "Your freshest place for film-related data",
   "main": "index.js",
   "scripts": {
+    "preinstall": "node -v | grep v6 || (echo 'Please update Node.js to v6. Other versions are not supported' && exit 1)",
     "start": "nodemon --ignore spec/ index.js",
     "test": "NODE_ENV=test PORT=3333 mocha --recursive --reporter spec"
   },
@@ -16,9 +17,10 @@
     "supertest": "^2.0.1"
   },
   "dependencies": {
+    "axios": "^0.18.0",
     "express": "^4.14.0",
     "request": "^2.79.0",
-    "sequelize": "^3.29.0",
+    "sequelize": "^4.35.1",
     "sqlite": "^2.2.3"
   },
   "engines": {
