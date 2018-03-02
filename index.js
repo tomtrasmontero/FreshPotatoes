@@ -96,7 +96,7 @@ function getFilmRecommendations(req, res, next) {
         };
       }, []);
 
-      res.send(transformResponse(RECOMMENDED_FILMS));
+      res.send(transformResponse(RECOMMENDED_FILMS, req.query));
     })
     .catch(err => {
       console.log(err);
@@ -107,7 +107,6 @@ function getFilmRecommendations(req, res, next) {
 
 // Utility/ Helper Functions
 function getReviews(filmId, genre) {
-  // need to get list of film ID !!!!!
   const REVIEWS_BASE_URL =
   "http://credentials-api.generalassemb.ly/4576f55f-c427-4cfc-a11c-5bfe914ca6c1";
   const URL = `${REVIEWS_BASE_URL}?films=${filmId}`;
@@ -157,12 +156,13 @@ function checkDate(parentDate, checkDate) {
   return DELTA_IN_MILLI_SEC <= FIFTEEN_YEARS_MILLI_SEC;
 };
 
-function transformResponse(reviews) {
+function transformResponse(reviews, query) {
+  console.log(query);
   const BASE_SUCCESS_RES = {
     recommendations: [],
     meta: {
-      limit: 10,
-      offset: 0,
+      limit: query.limit || 10,
+      offset: query.offset || 0,
     },
   };
 
@@ -179,6 +179,15 @@ function transformResponse(reviews) {
     BASE_SUCCESS_RES.recommendations.push(BASE_RECOMMENDATION);
   });
 
+  if (query.limit) {
+    BASE_SUCCESS_RES.recommendations.splice(query.limit);
+  };
+
+  if(query.offset) {
+    BASE_SUCCESS_RES.recommendations.splice(0, query.offset);
+  };
+
+  console.log(BASE_SUCCESS_RES);
   return BASE_SUCCESS_RES;
 };
 
