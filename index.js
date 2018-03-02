@@ -5,7 +5,6 @@ const sqlite = require('sqlite'),
       express = require('express'),
       app = express();
 
-
 const { PORT=3000, NODE_ENV='development', DB_PATH='./db/database.db' } = process.env;
 const DB = new Sequelize('sqlite:./db/database.db');
 
@@ -105,13 +104,13 @@ function getFilmRecommendations(req, res, next) {
     .catch(err => {
       res.status(422).send({message: '"message" key missing'});
     });
-}
+};
 
 
 // Utility/ Helper Functions
 function getReviews(filmId, genre) {
   const REVIEWS_BASE_URL =
-  "http://credentials-api.generalassemb.ly/4576f55f-c427-4cfc-a11c-5bfe914ca6c1";
+  'http://credentials-api.generalassemb.ly/4576f55f-c427-4cfc-a11c-5bfe914ca6c1';
   const URL = `${REVIEWS_BASE_URL}?films=${filmId}`;
 
   // fetch reviews and return data to be saved in DB
@@ -152,7 +151,6 @@ function getReviews(filmId, genre) {
     .catch(err => console.log(err, 'error in reviews'));
 };
 
-
 function checkDate(parentDate, checkDate) {
   const FIFTEEN_YEARS_MILLI_SEC = 31556952000 * 15;
   const DELTA_IN_MILLI_SEC = Math.abs(new Date(parentDate) - new Date(checkDate));
@@ -189,7 +187,6 @@ function transformResponse(reviews, query) {
     BASE_SUCCESS_RES.recommendations.splice(0, query.offset);
   };
 
-  console.log(BASE_SUCCESS_RES);
   return BASE_SUCCESS_RES;
 };
 
