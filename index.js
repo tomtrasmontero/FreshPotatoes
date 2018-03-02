@@ -62,8 +62,14 @@ DB.sync().then(() => console.log('success')).catch(err => console.log(err));
 // ROUTES
 app.get('/films/:id/recommendations', getFilmRecommendations);
 
+// catchall handler
+app.get('*', (req, res) => {
+  res.status(404).send({message: '"message" key missing'});
+})
+
 // ROUTE HANDLER
 function getFilmRecommendations(req, res, next) {
+  // check req object => error handler
   FILMS.findAll({where: {id: req.params.id, status: 'Released'}, raw: true})
     .then((filmBeingLookedUp) => {
       const FILMS_RESULT = FILMS.findAll({
@@ -73,7 +79,7 @@ function getFilmRecommendations(req, res, next) {
         where: {id: filmBeingLookedUp[0].genre_id}, raw: true,
       });
 
-      return Promise.all([FILMS_RESULT, filmBeingLookedUp[0], MOVIE_GENRE ]);
+      return Promise.all([FILMS_RESULT, filmBeingLookedUp[0], MOVIE_GENRE]);
     })
     .then((filmResults) => {
       // remember to attach genre
@@ -157,7 +163,6 @@ function checkDate(parentDate, checkDate) {
 };
 
 function transformResponse(reviews, query) {
-  console.log(query);
   const BASE_SUCCESS_RES = {
     recommendations: [],
     meta: {

@@ -152,16 +152,16 @@ describe('Recommendations API', function() {
     });
   });
 
-  // describe('error handling', function() {
-  //   it('handles missing routes', function(done) {
-  //     request
-  //       .get('/films/1/recommendations/notarealroute')
-  //       .expect(404)
-  //       .expect(function(res) {
-  //         ok('message' in res.body, '"message" key missing');
-  //       })
-  //       .end(done);
-  //   });
+  describe('error handling', function() {
+    it('handles missing routes', function(done) {
+      request
+        .get('/films/1/recommendations/notarealroute')
+        .expect(404)
+        .expect(function(res) {
+          ok('message' in res.body, '"message" key missing');
+        })
+        .end(done);
+    });
   //
   //   it('handles invalid id', function(done) {
   //     request
@@ -182,5 +182,5 @@ describe('Recommendations API', function() {
   //       })
   //       .end(done);
   //   });
-  // });
+  });
 });
