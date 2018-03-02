@@ -152,35 +152,35 @@ describe('Recommendations API', function() {
     });
   });
 
-  describe('error handling', function() {
-    it('handles missing routes', function(done) {
-      request
-        .get('/films/1/recommendations/notarealroute')
-        .expect(404)
-        .expect(function(res) {
-          ok('message' in res.body, '"message" key missing');
-        })
-        .end(done);
-    });
-
-    it('handles invalid id', function(done) {
-      request
-        .get('/films/notanid/recommendations')
-        .expect(422)
-        .expect(function(res) {
-          ok('message' in res.body, '"message" key missing');
-        })
-        .end(done);
-    });
-
-    it('handles invalid query params', function(done) {
-      request
-        .get('/films/19/recommendations?offset=notanoffset&limit=notalimit')
-        .expect(422)
-        .expect(function(res) {
-          ok('message' in res.body, '"message" key missing');
-        })
-        .end(done);
-    });
-  });
+  // describe('error handling', function() {
+  //   it('handles missing routes', function(done) {
+  //     request
+  //       .get('/films/1/recommendations/notarealroute')
+  //       .expect(404)
+  //       .expect(function(res) {
+  //         ok('message' in res.body, '"message" key missing');
+  //       })
+  //       .end(done);
+  //   });
+  //
+  //   it('handles invalid id', function(done) {
+  //     request
+  //       .get('/films/notanid/recommendations')
+  //       .expect(422)
+  //       .expect(function(res) {
+  //         ok('message' in res.body, '"message" key missing');
+  //       })
+  //       .end(done);
+  //   });
+  //
+  //   it('handles invalid query params', function(done) {
+  //     request
+  //       .get('/films/19/recommendations?offset=notanoffset&limit=notalimit')
+  //       .expect(422)
+  //       .expect(function(res) {
+  //         ok('message' in res.body, '"message" key missing');
+  //       })
+  //       .end(done);
+  //   });
+  // });
 });

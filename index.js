@@ -1,3 +1,4 @@
+// ALL WORK inside index.js, Don't Modify Files/Folder Structure
 const sqlite = require('sqlite'),
       Sequelize = require('sequelize'),
       axios = require('axios');
@@ -6,7 +7,7 @@ const sqlite = require('sqlite'),
 
 
 const { PORT=3000, NODE_ENV='development', DB_PATH='./db/database.db' } = process.env;
-const DB = new Sequelize('sqlite:../db/database.db');
+const DB = new Sequelize('sqlite:./db/database.db');
 
 // START SERVER
 Promise.resolve()
@@ -58,17 +59,54 @@ const GENRES = DB.define('genres', {
 
 DB.sync().then(() => console.log('success')).catch(err => console.log(err));
 
-
 // ROUTES
 app.get('/films/:id/recommendations', getFilmRecommendations);
 
 // ROUTE HANDLER
-function getFilmRecommendations(req, res) {
-  res.status(500).send('Not Implemented');
+function getFilmRecommendations(req, res, next) {
+  FILMS.findAll({where: {id: req.params.id, status: 'Released'}, raw: true})
+    .then((filmBeingLookedUp) => {
+      const FILMS_RESULT = FILMS.findAll({
+        where: {genre_id: filmBeingLookedUp[0].genre_id}, raw: true,
+      });
+      const MOVIE_GENRE = GENRES.findAll({
+        where: {id: filmBeingLookedUp[0].genre_id}, raw: true,
+      });
+
+      return Promise.all([FILMS_RESULT, filmBeingLookedUp[0], MOVIE_GENRE ]);
+    })
+    .then((filmResults) => {
+      // remember to attach genre
+      const [FILMS, QUERIED_FILM, MOVIE_GENRE] = filmResults;
+      const FILMS_WITHIN_15YRS = FILMS.filter((film) => {
+        return checkDate(QUERIED_FILM.release_date, film.release_date);
+      });
+      const REVIEW_COLLECTION_STRING = FILMS_WITHIN_15YRS.map(film => film.id).join(',');
+      const VERIFIED_FILMS_W_REVIEWS = getReviews(REVIEW_COLLECTION_STRING, MOVIE_GENRE[0].name);
+
+      return Promise.all([FILMS_WITHIN_15YRS, VERIFIED_FILMS_W_REVIEWS]);
+    })
+    .then(verifiedFilms => {
+      const [FILMS_WITHIN_15YRS, VERIFIED_FILMS_W_REVIEWS] = verifiedFilms;
+      const RECOMMENDED_FILMS = VERIFIED_FILMS_W_REVIEWS.reduce((filmCollection, film) => {
+        for (let i = 0; i < FILMS_WITHIN_15YRS.length; i++) {
+          if (FILMS_WITHIN_15YRS[i].id === film.film_id) {
+            return [...filmCollection, Object.assign(FILMS_WITHIN_15YRS[i], film)];
+          };
+        };
+      }, []);
+
+      res.send(transformResponse(RECOMMENDED_FILMS));
+    })
+    .catch(err => {
+      console.log(err);
+      next();
+    });
 }
 
+
 // Utility/ Helper Functions
-function getReviews(filmId) {
+function getReviews(filmId, genre) {
   // need to get list of film ID !!!!!
   const REVIEWS_BASE_URL =
   "http://credentials-api.generalassemb.ly/4576f55f-c427-4cfc-a11c-5bfe914ca6c1";
@@ -101,8 +139,9 @@ function getReviews(filmId) {
 
         return [...filmCollection, Object.assign({}, {
           film_id: film.film_id,
-          averageRating: AVG_RATINGS.toFixed(2),
+          averageRating: AVG_RATINGS,
           reviews: TOTAL_REVIEWS,
+          genre,
         })];
       }, []);
 
@@ -126,7 +165,19 @@ function transformResponse(reviews) {
       offset: 0,
     },
   };
-  BASE_SUCCESS_RES.recommendations = reviews;
+
+  reviews.forEach((review) => {
+    const BASE_RECOMMENDATION = {
+      id: review.id,
+      title: review.title,
+      releaseDate: review.release_date,
+      genre: review.genre,
+      averageRating: review.averageRating.toFixed(2),
+      reviews: review.reviews,
+    };
+
+    BASE_SUCCESS_RES.recommendations.push(BASE_RECOMMENDATION);
+  });
 
   return BASE_SUCCESS_RES;
 };
